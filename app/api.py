@@ -20,6 +20,8 @@ def post_register(request: Request, username: str = Form(...), password: str = F
     result = register_user(username, password)
     if result != "Benutzer erfolgreich registriert":
         return templates.TemplateResponse("register.html", {"request": request, "error": result})
+    if result == "success":
+        return RedirectResponse(url="/login", status_code=302)
     return RedirectResponse(url="/login", status_code=303)
 
 @app.get("/login", response_class=HTMLResponse)
@@ -30,5 +32,9 @@ def get_login(request: Request):
 def login(request: Request, username: str = Form(...), password: str = Form(...)):
     result = authenticate_user(username, password)
     if result != "Login erfolgreich":
-        raise templates.TemplateResponse("login.html", {"request": request, "error": result})
-    return templates.TemplateResponse("Welcome.html", {"request": request, "username": username})
+        return templates.TemplateResponse("login.html", {"request": request, "error": result})
+    return RedirectResponse(url="/welcome", status_code=302)
+
+@app.get("/welcome", response_class=HTMLResponse)
+def welcome_page(request: Request, username: str = ""):
+    return templates.TemplateResponse("welcome.html", {"request": request, "username": username})
